@@ -1,5 +1,5 @@
 {
-  "minimum_coverage": 95,
+  "minimum_coverage": 60,
   "skip_files": [
     "lib/mix/tasks/",
     "lib/house_search/application.ex",

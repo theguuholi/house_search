@@ -19,15 +19,15 @@ defmodule HouseSearchWeb.ConnCase do
 
   using do
     quote do
+      use HouseSearchWeb, :verified_routes
+
+      import HouseSearchWeb.ConnCase
+      import Phoenix.ConnTest
+      import Plug.Conn
       # The default endpoint for testing
       @endpoint HouseSearchWeb.Endpoint
 
-      use HouseSearchWeb, :verified_routes
-
       # Import conveniences for testing with connections
-      import Plug.Conn
-      import Phoenix.ConnTest
-      import HouseSearchWeb.ConnCase
     end
   end
 
