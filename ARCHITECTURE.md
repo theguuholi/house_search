@@ -1,124 +1,125 @@
-# SDD inicial — Arquitetura do HouseSearch
+# Initial SDD — HouseSearch Architecture
 
-**Data:** 15 de julho de 2026
+**Date:** July 15, 2026
 
-**Status:** proposta para revisão antes do plano de implementação
+**Status:** proposal for review before the implementation plan
 
-**Estilo:** monólito modular Phoenix com processamento assíncrono
+**Style:** Phoenix modular monolith with asynchronous processing
 
-## 1. Objetivo
+## 1. Objective
 
-Construir um MVP para corretores autônomos de Americana/SP que transforme um
-pedido de compra residencial em uma shortlist explicada de três imóveis úteis
-em até dez minutos.
+Build an MVP for independent real estate brokers in Americana, São Paulo, that
+turns a residential purchase request into an explained shortlist of three useful
+properties within ten minutes.
 
-O sistema combina dados persistidos com atualizações sob demanda. A IA atua na
-interpretação e na explicação; coleta, validação, deduplicação, ranking e
-cobrança permanecem determinísticos e auditáveis.
+The system combines persisted data with on-demand refreshes. AI interprets and
+explains; collection, validation, deduplication, ranking, and billing remain
+deterministic and auditable.
 
-## 2. Decisões já tomadas
+## 2. Established decisions
 
-| Tema | Decisão |
+| Topic | Decision |
 |---|---|
-| Usuário inicial | Corretor autônomo |
-| Região | Americana/SP e cidades próximas configuradas pelo administrador |
-| Operação | Compra de imóveis residenciais |
-| Estratégia de dados | Índice local com atualização assíncrona sob demanda |
-| Fontes | Portais e imobiliárias cadastrados somente pelo administrador |
-| IA | Sagents para conversa, critérios e explicação; nunca como scraper ou motor de cobrança |
-| Processamento | Oban com filas separadas e jobs idempotentes |
-| Ranking | Filtros e pontuação determinísticos antes da explicação da LLM |
-| Cobrança | Uma unidade por atendimento confirmado, válido por sete dias |
-| Meta do piloto | Três opções úteis em até dez minutos |
+| Initial user | Independent real estate broker |
+| Region | Americana, São Paulo, and nearby cities configured by an administrator |
+| Transaction | Residential property purchases |
+| Data strategy | Local index with asynchronous on-demand refreshes |
+| Sources | Portals and real estate agencies registered only by an administrator |
+| AI | Sagents for conversation, criteria, and explanations; never as a scraper or billing engine |
+| Processing | Oban with separate queues and idempotent jobs |
+| Ranking | Deterministic filters and scoring before LLM explanations |
+| Billing | One unit per confirmed search case, valid for seven days |
+| Pilot target | Three useful options within ten minutes |
 
-## 3. Princípios
+## 3. Principles
 
-1. **Evidência antes de narrativa:** toda característica exibida deve apontar
-   para o anúncio e para a coleta que a originou.
-2. **Falha parcial é aceitável:** uma fonte indisponível não interrompe o
-   atendimento quando outras fontes produzem resultados.
-3. **IA nas bordas:** a LLM interpreta linguagem e explica decisões; regras de
-   negócio críticas permanecem em Elixir.
-4. **Fontes são configuração:** domínios, regiões, limites e estratégias não
-   ficam espalhados em módulos ou prompts.
-5. **Custo é parte da observabilidade:** cada coleta e chamada de LLM é
-   atribuída a uma fonte e, quando aplicável, a um atendimento.
-6. **Sem republicação:** o MVP mostra um resumo necessário à comparação e leva
-   o corretor ao anúncio original.
+1. **Evidence before narrative:** every displayed property attribute must point
+   to the listing and collection run that produced it.
+2. **Partial failure is acceptable:** one unavailable source does not interrupt
+   a search case when other sources produce results.
+3. **AI at the edges:** the LLM interprets language and explains decisions;
+   critical business rules remain in Elixir.
+4. **Sources are configuration:** domains, regions, limits, and strategies are
+   not scattered across modules or prompts.
+5. **Cost is observable:** each collection operation and LLM call is attributed
+   to a source and, when applicable, a search case.
+6. **No republishing:** the MVP displays only the summary required for comparison
+   and directs the broker to the original listing.
 
-## 4. Visão da arquitetura
+## 4. Architecture overview
 
 ```mermaid
 flowchart LR
-  B["Corretor"] --> LV["Phoenix LiveView"]
-  LV --> AG["Sagents: interpretar e confirmar"]
+  B["Real estate broker"] --> LV["Phoenix LiveView"]
+  LV --> AG["Sagents: interpret and confirm"]
   AG --> SC["SearchCases"]
-  SC --> IDX["Índice PostgreSQL"]
-  SC --> OB["Oban: atualização sob demanda"]
-  ADM["Administrador"] --> SRC["Catálogo de fontes"]
+  SC --> IDX["PostgreSQL index"]
+  SC --> OB["Oban: on-demand refresh"]
+  ADM["Administrator"] --> SRC["Source catalog"]
   SRC --> OB
-  OB --> ADP["Adaptadores de coleta"]
-  ADP --> WEB["Portais e imobiliárias"]
-  ADP --> ING["Normalização e evidências"]
+  OB --> ADP["Collection adapters"]
+  ADP --> WEB["Portals and agencies"]
+  ADP --> ING["Normalization and evidence"]
   ING --> IDX
-  IDX --> RANK["Filtros, deduplicação e ranking"]
-  RANK --> EXP["Sagents: explicar Top 3"]
+  IDX --> RANK["Filters, deduplication, and ranking"]
+  RANK --> EXP["Sagents: explain Top 3"]
   EXP --> LV
-  SC --> USE["Ledger de uso"]
-  OB --> OBS["Métricas e falhas"]
+  SC --> USE["Usage ledger"]
+  OB --> OBS["Metrics and failures"]
 ```
 
-### Fluxo híbrido
+### Hybrid flow
 
-1. O Sagents devolve critérios estruturados e pede confirmação humana.
-2. `SearchCases` cria o atendimento e um evento de uso na mesma transação.
-3. O índice local produz candidatos imediatamente.
-4. Fontes com última coleta superior a seis horas recebem jobs de atualização.
-5. Cada adaptador coleta, normaliza e persiste anúncios de forma idempotente.
-6. Novos dados fazem o atendimento ser recomputado e atualizam o LiveView.
-7. Quando existem pelo menos três candidatos elegíveis, o Sagents recebe apenas
-   os dados comprovados do Top 3 e produz as justificativas.
-8. A busca permanece aberta por até dez minutos; depois disso o sistema entrega
-   o melhor resultado parcial e identifica fontes que falharam.
+1. Sagents returns structured criteria and requests human confirmation.
+2. `SearchCases` creates the search case and a usage event in one transaction.
+3. The local index produces candidates immediately.
+4. Sources whose latest collection is older than six hours receive refresh jobs.
+5. Each adapter collects, normalizes, and persists listings idempotently.
+6. New data triggers recomputation of the search case and updates the LiveView.
+7. Once at least three eligible candidates exist, Sagents receives only the
+   verified data for the Top 3 and produces the explanations.
+8. The search remains open for up to ten minutes; after that, the system returns
+   the best partial result and identifies failed sources.
 
-## 5. Limites dos módulos
+## 5. Module boundaries
 
-O MVP permanece em um único deploy Phoenix, mas os contextos não acessam tabelas
-uns dos outros diretamente.
+The MVP remains a single Phoenix deployment, but contexts do not access each
+other's tables directly.
 
-| Contexto | Responsabilidade | Dependências permitidas |
+| Context | Responsibility | Permitted dependencies |
 |---|---|---|
-| `Accounts` | Corretor, administrador, autenticação e conta | Ecto |
-| `Sources` | Cadastro, aprovação, região, política e saúde das fontes | Ecto |
-| `Ingestion` | Adaptadores, coleta, normalização e evidências | `Sources`, Req, Floki |
-| `Listings` | Anúncios normalizados, snapshots e deduplicação | Ecto |
-| `SearchCases` | Critérios, ciclo de sete dias e estado do atendimento | `Listings`, `Usage` |
-| `Ranking` | Elegibilidade, score e explicações factuais intermediárias | Dados imutáveis de entrada |
-| `AI` | Sagents, prompts versionados e schemas de entrada/saída | `SearchCases`, `Ranking` |
-| `Usage` | Franquia, eventos idempotentes e custo atribuído | Ecto |
-| `Web` | LiveViews do corretor e do administrador | APIs públicas dos contextos |
+| `Accounts` | Broker, administrator, authentication, and account | Ecto |
+| `Sources` | Source registration, approval, region, policy, and health | Ecto |
+| `Ingestion` | Adapters, collection, normalization, and evidence | `Sources`, Req, Floki |
+| `Listings` | Normalized listings, snapshots, and deduplication | Ecto |
+| `SearchCases` | Criteria, seven-day lifecycle, and search case state | `Listings`, `Usage` |
+| `Ranking` | Eligibility, score, and intermediate factual explanations | Immutable input data |
+| `AI` | Sagents, versioned prompts, and input/output schemas | `SearchCases`, `Ranking` |
+| `Usage` | Allowance, idempotent events, and attributed cost | Ecto |
+| `Web` | Broker and administrator LiveViews | Public context APIs |
 
-`Oban.Worker` coordena chamadas às APIs públicas desses contextos; nenhum worker
-concentra scraping, persistência, ranking e broadcast no mesmo módulo.
+`Oban.Worker` coordinates calls to the public APIs of these contexts; no worker
+combines scraping, persistence, ranking, and broadcasting in one module.
 
-## 6. Modelo de dados
+## 6. Data model
 
-### Identidade e assinatura
+### Identity and subscriptions
 
-| Schema | Campos essenciais |
+| Schema | Essential fields |
 |---|---|
 | `accounts` | `name`, `status`, `timezone` |
 | `users` | `email`, `hashed_password`, `role`, `status` |
 | `memberships` | `account_id`, `user_id`, `role` |
 | `subscriptions` | `account_id`, `plan_code`, `included_cases`, `period_start`, `period_end`, `status` |
-| `usage_events` | `account_id`, `search_case_id`, `kind`, `units`, `cost_cents`, `idempotency_key` único |
+| `usage_events` | `account_id`, `search_case_id`, `kind`, `units`, `cost_cents`, unique `idempotency_key` |
 
-No piloto haverá uma conta por corretor. A estrutura de conta evita uma
-migração destrutiva quando imobiliárias com vários usuários forem atendidas.
+The pilot uses one account per broker. The account structure avoids a destructive
+migration when the product later supports real estate agencies with multiple
+users.
 
-### Fontes e coleta
+### Sources and collection
 
-| Schema | Campos essenciais |
+| Schema | Essential fields |
 |---|---|
 | `sources` | `name`, `kind`, `base_url`, `adapter`, `status`, `refresh_interval_minutes`, `rate_limit_per_minute`, `terms_status`, `robots_status`, `credential_ref` |
 | `source_regions` | `source_id`, `city`, `state`, `enabled` |
@@ -128,13 +129,13 @@ migração destrutiva quando imobiliárias com vários usuários forem atendidas
 | `property_clusters` | `dedup_key`, `status` |
 | `property_cluster_members` | `property_cluster_id`, `listing_id`, `confidence` |
 
-`adapter` é uma chave conhecida pelo código, não um nome de módulo fornecido pelo
-usuário. `credential_ref` aponta para segredo de runtime; credenciais nunca são
-gravadas no mapa de configuração da fonte.
+`adapter` is a key recognized by the application, not a module name supplied by
+a user. `credential_ref` points to a runtime secret; credentials are never
+stored in the source configuration map.
 
-### Atendimento e recomendação
+### Search cases and recommendations
 
-| Schema | Campos essenciais |
+| Schema | Essential fields |
 |---|---|
 | `search_cases` | `account_id`, `created_by_id`, `status`, `confirmed_at`, `refinement_expires_at`, `deadline_at` |
 | `search_criteria_versions` | `search_case_id`, `version`, `criteria`, `confirmed_by_id`, `inserted_at` |
@@ -142,12 +143,12 @@ gravadas no mapa de configuração da fonte.
 | `recommendations` | `search_case_id`, `criteria_version`, `rank`, `property_cluster_id`, `explanation`, `evidence`, `model`, `prompt_version` |
 | `recommendation_feedback` | `recommendation_id`, `user_id`, `verdict`, `reason` |
 
-Critérios e evidências usam JSONB versionado porque preferências variam, mas
-campos usados para filtrar, relacionar ou cobrar permanecem colunas tipadas.
+Criteria and evidence use versioned JSONB because preferences vary, while fields
+used for filtering, relationships, or billing remain typed columns.
 
-## 7. Contrato dos adaptadores
+## 7. Adapter contract
 
-Cada estratégia de coleta implementa um comportamento equivalente a:
+Each collection strategy implements a behavior equivalent to:
 
 ```elixir
 @callback fetch(Source.t(), Region.t(), cursor :: map() | nil) ::
@@ -155,183 +156,193 @@ Cada estratégia de coleta implementa um comportamento equivalente a:
   | {:error, Failure.t()}
 ```
 
-O adaptador somente obtém dados e devolve uma estrutura bruta. A camada de
-normalização valida URLs, converte moeda e medidas, registra evidências e gera o
-`data_hash`. O persistidor aplica `upsert` por `source_id` e `external_id`; na
-ausência de identificador externo, usa a URL canônica.
+The adapter only retrieves data and returns a raw structure. The normalization
+layer validates URLs, converts currency and measurements, records evidence, and
+generates `data_hash`. The persistence layer performs an `upsert` by `source_id`
+and `external_id`; when an external identifier is unavailable, it uses the
+canonical URL.
 
-Fontes podem usar API oficial, feed, HTML estático ou navegador automatizado,
-nessa ordem de preferência. Uma estratégia baseada em LLM para extrair HTML não
-faz parte do MVP: ela dificulta auditoria e aumenta custo antes de a coleta
-determinística ser validada.
+Sources may use an official API, feed, static HTML, or browser automation, in
+that order of preference. LLM-based HTML extraction is outside the MVP because
+it impairs auditing and increases cost before deterministic collection has been
+validated.
 
-## 8. Jobs Oban
+## 8. Oban jobs
 
-| Worker | Fila | Função |
+| Worker | Queue | Function |
 |---|---|---|
-| `ScheduledSourceRefreshWorker` | `ingest_scheduled: 2` | Atualizar uma fonte/região conforme intervalo |
-| `OnDemandSourceRefreshWorker` | `ingest_demand: 4` | Atualizar fonte desatualizada para um atendimento |
-| `NormalizeBatchWorker` | `ingest_normalize: 4` | Validar, normalizar e persistir um lote |
-| `RecomputeSearchCaseWorker` | `recommendations: 4` | Recalcular matches após mudança de dados |
-| `ExpireListingsWorker` | `maintenance: 1` | Marcar anúncios não vistos após três coletas bem-sucedidas |
+| `ScheduledSourceRefreshWorker` | `ingest_scheduled: 2` | Refresh one source and region on its configured interval |
+| `OnDemandSourceRefreshWorker` | `ingest_demand: 4` | Refresh a stale source for a search case |
+| `NormalizeBatchWorker` | `ingest_normalize: 4` | Validate, normalize, and persist a batch |
+| `RecomputeSearchCaseWorker` | `recommendations: 4` | Recompute matches after data changes |
+| `ExpireListingsWorker` | `maintenance: 1` | Mark listings not seen after three successful collections |
 
-Jobs de fonte são únicos por `source_id`, região e janela de seis horas. Como a
-unicidade do Oban impede inserções duplicadas, mas não limita a execução
-concorrente, as filas também possuem limites explícitos. Consulte a
-[documentação de unique jobs do Oban](https://oban.hexdocs.pm/unique_jobs.html).
+Source jobs are unique by `source_id`, region, and six-hour window. Because Oban
+uniqueness prevents duplicate insertion but does not limit concurrent execution,
+queues also have explicit limits. See the
+[Oban unique jobs documentation](https://oban.hexdocs.pm/unique_jobs.html).
 
-Cada job registra `collection_run_id`, utiliza timeouts explícitos, classifica
-erros como transitórios ou permanentes e pode ser executado novamente sem
-duplicar anúncios ou eventos de cobrança.
+Each job records `collection_run_id`, uses explicit timeouts, classifies errors
+as transient or permanent, and can run again without duplicating listings or
+billing events.
 
-## 9. Ranking e deduplicação
+## 9. Ranking and deduplication
 
-### Elegibilidade obrigatória
+### Required eligibility
 
-Um candidato precisa estar ativo, representar venda residencial, pertencer à
-região configurada, ter link HTTP(S) válido e possuir preço e localização. Preço
-máximo, tipo e cidade confirmados são filtros rígidos. Um campo opcional ausente
-é tratado como desconhecido, nunca como correspondência positiva.
+A candidate must be active, represent a residential sale, belong to the
+configured region, have a valid HTTP(S) link, and include both price and
+location. Confirmed maximum price, property type, and city are hard filters. A
+missing optional field is treated as unknown, never as a positive match.
 
-### Deduplicação
+### Deduplication
 
-Primeiro são unidos anúncios com mesmo identificador dentro da fonte. Depois,
-um `dedup_key` normalizado combina endereço, preço, área e dormitórios. Pares
-incertos permanecem separados e recebem baixa confiança; a LLM não decide se
-dois anúncios são o mesmo imóvel.
+Listings with the same identifier within one source are merged first. A
+normalized `dedup_key` then combines address, price, area, and bedroom count.
+Uncertain pairs remain separate and receive low confidence; the LLM does not
+decide whether two listings represent the same property.
 
-### Score de 0 a 100
+### Score from 0 to 100
 
-- proximidade da faixa de preço: 30 pontos;
-- localização e bairros preferidos: 25 pontos;
-- dormitórios, vagas, área e demais preferências: 25 pontos;
-- frescor, completude e confiança da fonte: 20 pontos.
+- proximity to the price range: 30 points;
+- location and preferred neighborhoods: 25 points;
+- bedrooms, parking, area, and other preferences: 25 points;
+- freshness, completeness, and source confidence: 20 points.
 
-O resultado persiste o detalhamento por critério. Empates são resolvidos por
-frescor, completude e identificador estável, nessa ordem. Pesos serão alterados
-somente com versão explícita e testes de regressão sobre casos reais anonimizados.
+The result persists a criterion-level breakdown. Ties are resolved by freshness,
+completeness, and stable identifier, in that order. Weights change only through
+an explicit version and regression tests against anonymized real search cases.
 
-## 10. Uso do Sagents
+## 10. Sagents usage
 
-O MVP usa **um agente conversacional**, não uma rede de agentes. A versão de
-referência é Sagents 0.9.0, publicada no Hex em junho de 2026:
-[pacote oficial](https://hex.pm/packages/sagents).
+The MVP uses **one conversational agent**, not a network of agents. The reference
+version is Sagents 0.9.0, published on Hex in June 2026:
+[official package](https://hex.pm/packages/sagents).
 
-O agente pode chamar apenas ferramentas com schemas restritos:
+The agent may call only tools with constrained schemas:
 
-- `propose_criteria`: apresenta critérios estruturados para confirmação;
-- `confirm_criteria`: grava uma nova versão confirmada;
-- `open_search_case`: cria o atendimento uma única vez;
-- `refine_search_case`: cria nova versão durante a janela de sete dias;
-- `explain_shortlist`: recebe três matches já ordenados e devolve explicações
-  associadas a evidências existentes.
+- `propose_criteria`: present structured criteria for confirmation;
+- `confirm_criteria`: store a newly confirmed criteria version;
+- `open_search_case`: create the search case exactly once;
+- `refine_search_case`: create a new version during the seven-day window;
+- `explain_shortlist`: receive three already-ranked matches and return
+  explanations tied to existing evidence.
 
-O agente não recebe ferramenta genérica de HTTP, SQL, execução de código ou
-criação arbitrária de jobs. A saída estruturada é validada antes de persistir.
-Se a explicação falhar, a UI continua mostrando o ranking e a decomposição
-determinística.
+The agent has no generic HTTP, SQL, code execution, or arbitrary job creation
+tool. Structured output is validated before persistence. If explanation
+generation fails, the UI continues to display the deterministic ranking and its
+score breakdown.
 
-## 11. LiveView e atualização em tempo real
+## 11. LiveView and real-time updates
 
-O LiveView mostra estados explícitos: `draft`, `awaiting_confirmation`,
-`searching`, `partial`, `complete` e `failed`. Resultados persistidos são a fonte
-de verdade; PubSub apenas informa que o cliente deve recarregar o estado, sem
-transportar o único exemplar de um resultado.
+The LiveView displays explicit states: `draft`, `awaiting_confirmation`,
+`searching`, `partial`, `complete`, and `failed`. Persisted results are the source
+of truth; PubSub only tells the client to reload state and never carries the sole
+copy of a result.
 
-A tela pode exibir o índice local imediatamente e inserir atualizações conforme
-os jobs terminam. Operações assíncronas devem traduzir sucesso e erro em estado
-visível, comportamento suportado pelas APIs assíncronas do
+The screen may show local index results immediately and insert updates as jobs
+complete. Asynchronous operations must translate success and failure into a
+visible state, behavior supported by the asynchronous APIs in
 [Phoenix LiveView](https://phoenix-live-view.hexdocs.pm/Phoenix.LiveView.html).
 
-## 12. Erros e degradação
+## 12. Errors and degradation
 
-- Falha em uma fonte: registrar, exibir a fonte como indisponível e continuar.
-- Timeout de dez minutos: finalizar como `partial` e entregar os melhores dados.
-- Fonte com cinco falhas consecutivas: mudar para `degraded` e impedir jobs sob
-  demanda até uma coleta administrativa bem-sucedida.
-- Anúncio removido: marcar como indisponível e recomputar atendimentos abertos.
-- LLM indisponível: mostrar score e razões determinísticas sem texto gerado.
-- Evento PubSub perdido: recuperar o estado persistido ao reconectar.
-- Cobrança duplicada: restrição única em `usage_events.idempotency_key` e criação
-  transacional com `search_cases`.
+- Source failure: record it, display the source as unavailable, and continue.
+- Ten-minute timeout: finish as `partial` and return the best available data.
+- Five consecutive source failures: change the source to `degraded` and block
+  on-demand jobs until an administrative collection succeeds.
+- Removed listing: mark it unavailable and recompute open search cases.
+- LLM unavailable: display the score and deterministic reasons without generated
+  text.
+- Missed PubSub event: recover persisted state on reconnect.
+- Duplicate billing: enforce a unique constraint on
+  `usage_events.idempotency_key` and create it transactionally with
+  `search_cases`.
 
-## 13. Segurança, privacidade e conformidade
+## 13. Security, privacy, and compliance
 
-- Somente administradores cadastram e ativam fontes.
-- `base_url` precisa usar HTTPS e host aprovado; redirects para hosts não
-  aprovados são rejeitados para reduzir SSRF.
-- Credenciais ficam em secrets de runtime e logs removem tokens e dados pessoais.
-- Antes de ativar uma fonte, o administrador registra revisão de termos,
-  `robots.txt`, método permitido, limite e data da revisão.
-- Quando houver API ou feed oficial, scraping de HTML não é usado.
-- O sistema armazena critérios do imóvel, não nome, telefone ou documentos do
-  comprador; o corretor identifica seus clientes fora do MVP.
-- Dados pessoais obedecem finalidade e necessidade conforme a
-  [LGPD, Lei 13.709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm).
-- Ativação comercial exige revisão jurídica dos termos de cada fonte; este SDD
-  não presume autorização de coleta por uma página ser pública.
+- Only administrators register and activate sources.
+- `base_url` must use HTTPS and an approved host; redirects to unapproved hosts
+  are rejected to reduce SSRF risk.
+- Credentials remain in runtime secrets, and logs remove tokens and personal
+  data.
+- Before activating a source, an administrator records the terms review,
+  `robots.txt` review, permitted method, limit, and review date.
+- When an official API or feed exists, HTML scraping is not used.
+- The system stores property criteria, not the buyer's name, phone number, or
+  documents; the broker identifies clients outside the MVP.
+- Personal data follows purpose limitation and data minimization principles
+  under Brazil's [General Data Protection Law (LGPD), Law 13,709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm).
+- Commercial activation requires legal review of each source's terms; this SDD
+  does not assume that a public page authorizes collection.
 
-## 14. Observabilidade
+## 14. Observability
 
-Eventos Telemetry e logs estruturados devem incluir `account_id`,
-`search_case_id`, `source_id`, `collection_run_id` e `job_id` quando aplicável.
-Painéis mínimos:
+Telemetry events and structured logs include `account_id`, `search_case_id`,
+`source_id`, `collection_run_id`, and `job_id` when applicable. Minimum
+dashboards:
 
-- duração e sucesso de coleta por fonte;
-- frescor e quantidade de anúncios ativos;
-- tempo até primeiro resultado e até Top 3;
-- atendimentos completos, parciais e sem resultado;
-- custo de LLM e coleta por atendimento;
-- taxa de utilidade por posição, fonte e versão do ranking.
+- collection duration and success by source;
+- freshness and active listing count;
+- time to first result and time to Top 3;
+- complete, partial, and empty search cases;
+- LLM and collection cost per search case;
+- usefulness rate by position, source, and ranking version.
 
-Prompts, modelos e versões de ranking são persistidos com a recomendação para
-permitir auditoria e comparação.
+Prompt, model, and ranking versions are persisted with each recommendation to
+support auditing and comparison.
 
-## 15. Estratégia de testes
+## 15. Testing strategy
 
-1. Testes de contrato para todo adaptador usando fixtures gravadas e sanitizadas.
-2. Testes unitários de normalização, URLs, moeda, deduplicação e score.
-3. Testes de propriedade garantindo score entre 0 e 100 e idempotência de
-   `upsert` e cobrança.
-4. Testes de integração para transações Ecto, workers Oban e recuperação após
-   falha parcial.
-5. Testes do agente com modelo falso, validando schemas, confirmação humana e
-   proibição de atributos sem evidência.
-6. Teste LiveView do fluxo completo: pedido, confirmação, resultados locais,
-   atualização assíncrona, Top 3 e refinamento.
-7. Smoke tests externos separados da suíte padrão; testes locais e CI nunca
-   dependem de portais reais.
+1. Contract tests for every adapter using recorded and sanitized fixtures.
+2. Unit tests for normalization, URLs, currency, deduplication, and scoring.
+3. Property-based tests guaranteeing scores remain between 0 and 100 and that
+   listing `upsert` and billing remain idempotent.
+4. Integration tests for Ecto transactions, Oban workers, and recovery after
+   partial failure.
+5. Agent tests with a fake model, validating schemas, human confirmation, and
+   the prohibition against unsupported attributes.
+6. A full LiveView test covering the request, confirmation, local results,
+   asynchronous updates, Top 3, and refinement.
+7. External smoke tests separated from the default suite; local and CI tests
+   never depend on live portals.
 
-## 16. Fases de entrega
+## 16. Delivery phases
 
-1. **Fundação:** contas, autenticação, catálogo administrativo e ledger de uso.
-2. **Dados:** contrato de adaptador, uma imobiliária parceira, persistência e
-   observabilidade da coleta.
-3. **Busca:** atendimento, critérios, índice local, ranking e feedback sem LLM.
-4. **Híbrido:** Oban agendado e sob demanda, atualizações LiveView e tolerância a
-   falhas.
-5. **IA:** Sagents para conversa, confirmação e explicação baseada em evidências.
-6. **Piloto:** três ou mais fontes aprovadas, cinco corretores e cinquenta casos.
+1. **Foundation:** accounts, authentication, administrative source catalog, and
+   usage ledger.
+2. **Data:** adapter contract, one partner agency, persistence, and collection
+   observability.
+3. **Search:** search case, criteria, local index, ranking, and feedback without
+   an LLM.
+4. **Hybrid:** scheduled and on-demand Oban jobs, LiveView updates, and fault
+   tolerance.
+5. **AI:** Sagents for conversation, confirmation, and evidence-based
+   explanations.
+6. **Pilot:** three or more approved sources, five brokers, and fifty search
+   cases.
 
-Cada fase deve produzir software utilizável e testado. O projeto antigo em
-`/Users/gustavooliveira/Documents/repositories/imobiliaria` serve apenas como
-fonte de aprendizados; código e decisões não serão copiados automaticamente.
+Each phase must produce usable and tested software. The previous project at
+`/Users/gustavooliveira/Documents/repositories/imobiliaria` is a source of
+lessons only; code and decisions will not be copied automatically.
 
-## 17. Critérios de aceitação do MVP
+## 17. MVP acceptance criteria
 
-- Um administrador consegue cadastrar, revisar, ativar e desativar uma fonte.
-- Coletas repetidas não duplicam anúncios.
-- Um corretor confirma critérios e consome exatamente uma unidade.
-- Refinamentos por sete dias não geram nova cobrança.
-- A busca retorna dados locais e atualiza fontes desatualizadas em segundo plano.
-- Falha de uma fonte não impede resultado parcial.
-- Todo imóvel recomendado contém link, fonte e última verificação.
-- A shortlist apresenta score verificável e explicação sem atributos inventados.
-- Pelo menos 70% dos cinquenta casos do piloto entregam três opções úteis em até
-  dez minutos.
+- An administrator can register, review, activate, and deactivate a source.
+- Repeated collections do not duplicate listings.
+- A broker confirms criteria and consumes exactly one unit.
+- Refinements made within seven days do not generate another charge.
+- A search returns local data and refreshes stale sources in the background.
+- Failure of one source does not prevent a partial result.
+- Every recommended property includes a link, source, and latest verification.
+- The shortlist provides a verifiable score and explanations without invented
+  attributes.
+- At least 70% of the fifty pilot search cases deliver three useful options
+  within ten minutes.
 
-## 18. Itens posteriores ao MVP
+## 18. Post-MVP items
 
-Aluguel, comprador final, equipes de imobiliárias, cadastro de fontes por
-clientes, checkout automático, aplicativo móvel, navegador automatizado e
-extração de HTML por LLM somente serão avaliados depois dos critérios do piloto.
+Rentals, end buyers, real estate agency teams, customer-managed sources,
+automated checkout, a native mobile application, browser automation, and
+LLM-based HTML extraction will be considered only after the pilot criteria are
+met.

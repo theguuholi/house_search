@@ -1,35 +1,34 @@
 # HouseSearch
 
-HouseSearch é um assistente de pesquisa imobiliária para corretores autônomos. O
-produto transforma o pedido de um cliente em uma shortlist explicada de três
-imóveis, combinando um índice local com atualizações assíncronas de fontes
-aprovadas.
+HouseSearch is a property research assistant for independent real estate brokers.
+It turns a client's request into an explained shortlist of three properties by
+combining a local index with asynchronous updates from approved sources.
 
-## Estado do projeto
+## Project status
 
-O projeto está na fase de **Spec-Driven Development**. A definição do negócio e
-a arquitetura inicial devem ser revisadas antes da criação do plano de
-implementação e antes de mudanças funcionais no código.
+The project is in the **Spec-Driven Development** phase. The business definition
+and initial architecture must be reviewed before creating the implementation
+plan or making functional code changes.
 
-## Documentos principais
+## Core documents
 
-- [PRODUCT.md](PRODUCT.md): problema, público, proposta de valor, cobrança e
-  critérios de validação.
-- [ARCHITECTURE.md](ARCHITECTURE.md): SDD inicial, limites dos módulos, modelo
-  de dados, fluxo híbrido, IA, jobs, segurança e estratégia de testes.
+- [PRODUCT.md](PRODUCT.md): problem, audience, value proposition, pricing, and
+  validation criteria.
+- [ARCHITECTURE.md](ARCHITECTURE.md): initial SDD, module boundaries, data model,
+  hybrid flow, AI, jobs, security, and testing strategy.
 
-## Direção técnica
+## Technical direction
 
-- Elixir, Phoenix e LiveView para o monólito modular e a experiência em tempo
-  real.
-- PostgreSQL/Ecto como fonte de verdade.
-- Oban para coleta, atualização, retentativas e recomputação assíncrona.
-- Sagents para interpretar pedidos, confirmar critérios e explicar a shortlist.
-- Adaptadores explícitos para portais e sites de imobiliárias cadastrados pelo
-  administrador.
+- Elixir, Phoenix, and LiveView for the modular monolith and real-time
+  experience.
+- PostgreSQL/Ecto as the source of truth.
+- Oban for collection, refreshes, retries, and asynchronous recomputation.
+- Sagents to interpret requests, confirm criteria, and explain the shortlist.
+- Explicit adapters for portals and real estate agency websites registered by
+  an administrator.
 
-## Desenvolvimento local
+## Local development
 
-O projeto ainda preserva o scaffold Phoenix original. Os comandos de execução e
-as dependências definitivas serão atualizados no plano de implementação depois
-da aprovação do SDD.
+The project still contains the original Phoenix scaffold. Runtime commands and
+final dependencies will be updated in the implementation plan after the SDD is
+approved.

@@ -1,157 +1,163 @@
-# Definição do negócio — HouseSearch
+# Business Definition — HouseSearch
 
-**Data:** 15 de julho de 2026
+**Date:** July 15, 2026
 
-**Status:** proposta inicial para validação do piloto
+**Status:** initial proposal for pilot validation
 
-**Mercado inicial:** corretores autônomos de Americana/SP e região
+**Initial market:** independent real estate brokers in Americana, São Paulo, and
+the surrounding region
 
-## Resumo
+## Summary
 
-O HouseSearch reduz o trabalho manual de procurar imóveis em vários portais,
-sites de imobiliárias e contatos dispersos. O corretor descreve o que o cliente
-procura, confirma os critérios interpretados pelo assistente e recebe três
-opções justificadas, com fonte, link e data da última verificação.
+HouseSearch reduces the manual work involved in searching for properties across
+multiple portals, real estate agency websites, and scattered contacts. The
+broker describes what the client is looking for, confirms the criteria
+interpreted by the assistant, and receives three justified options with the
+source, direct link, and date of the latest verification.
 
-A promessa do MVP é entregar **três opções úteis em até dez minutos**. O produto
-não substitui o corretor: organiza a pesquisa e fornece evidências para que ele
-decida o que apresentar ao cliente.
+The MVP promise is to deliver **three useful options within ten minutes**. The
+product does not replace the broker: it organizes the research and supplies
+evidence so the broker can decide what to present to the client.
 
-## Problema
+## Problem
 
-Um corretor recebe pedidos com preço, bairro, tipo, dormitórios e preferências
-subjetivas. Para encontrar opções, ele repete filtros em diversos sites,
-compara anúncios incompletos, elimina duplicatas e tenta lembrar quais páginas
-já consultou. Esse processo é demorado, pouco rastreável e difícil de repetir.
+A real estate broker receives requests containing price, neighborhood, property
+type, bedrooms, and subjective preferences. To find suitable options, the broker
+repeats filters across several websites, compares incomplete listings, removes
+duplicates, and tries to remember which pages have already been checked. This
+process is time-consuming, difficult to audit, and hard to repeat consistently.
 
-## Cliente inicial
+## Initial customer
 
-O primeiro cliente pagante é o **corretor autônomo** que atende compradores na
-região de Americana/SP. Ele é um bom público inicial porque sente a dor com
-frequência, decide sozinho sobre ferramentas de trabalho e consegue avaliar
-rapidamente se uma shortlist é útil.
+The first paying customer is the **independent real estate broker** serving home
+buyers in the Americana region. This is a strong initial audience because the
+broker experiences the problem frequently, can decide independently which work
+tools to adopt, and can quickly assess whether a shortlist is useful.
 
-Compradores finais, equipes de imobiliárias, aluguel, captação de imóveis e CRM
-completo não fazem parte do primeiro piloto.
+End buyers, real estate agency teams, rentals, property acquisition, and a full
+CRM are outside the first pilot.
 
-## Trabalho que o produto resolve
+## Job to be done
 
-> Quando um cliente me disser o imóvel que procura, quero consultar fontes
-> confiáveis de uma só vez e receber as melhores opções explicadas, para que eu
-> possa responder rápido sem passar horas pesquisando manualmente.
+> When a client tells me what kind of property they want, I want to search
+> trusted sources at once and receive the best options with clear explanations,
+> so I can respond quickly without spending hours researching manually.
 
-## Proposta de valor
+## Value proposition
 
-- Uma conversa substitui a repetição dos mesmos filtros em vários sites.
-- Cada recomendação mostra por que combina e em quais critérios deixa a desejar.
-- Resultados exibem origem, link direto e momento da última verificação.
-- A pesquisa continua em segundo plano sem bloquear o uso da aplicação.
-- O corretor mantém a decisão final e pode refinar o atendimento por sete dias.
+- One conversation replaces repeated filtering across several websites.
+- Each recommendation explains why it matches and which criteria it falls short
+  on.
+- Results include the source, direct link, and time of the latest verification.
+- Research continues in the background without blocking the application.
+- The broker retains the final decision and can refine the search case for seven
+  days.
 
-## Jornada principal
+## Primary journey
 
-1. O corretor descreve o pedido do cliente em linguagem natural.
-2. O assistente extrai critérios estruturados, faz no máximo uma pergunta de
-   esclarecimento por vez e solicita confirmação.
-3. A confirmação cria um atendimento e consome uma unidade da franquia.
-4. A aplicação mostra resultados do índice local e atualiza fontes
-   desatualizadas em segundo plano.
-5. Regras determinísticas filtram, deduplicam e pontuam os anúncios.
-6. O assistente explica os três primeiros usando somente dados comprovados.
-7. O corretor marca as opções como úteis ou inadequadas e pode refinar o mesmo
-   atendimento durante sete dias sem novo consumo.
+1. The broker describes the client's request in natural language.
+2. The assistant extracts structured criteria, asks no more than one clarifying
+   question at a time, and requests confirmation.
+3. Confirmation creates a search case and consumes one included unit.
+4. The application shows results from the local index and refreshes stale
+   sources in the background.
+5. Deterministic rules filter, deduplicate, and score the listings.
+6. The assistant explains the top three using only verified data.
+7. The broker marks options as useful or unsuitable and may refine the same
+   search case for seven days without consuming another unit.
 
-## Modelo de receita
+## Revenue model
 
-O modelo será **assinatura mensal com franquia de atendimentos e excedente**.
-Uma unidade representa um pedido de cliente confirmado, incluindo refinamentos
-durante sete dias. Mensagens, alterações de filtro e novas versões da shortlist
-dentro dessa janela não consomem unidades adicionais.
+The model is a **monthly subscription with included search cases and paid
+overages**. One unit represents a confirmed client request, including refinements
+made during the following seven days. Messages, filter changes, and new
+shortlist versions within that window do not consume additional units.
 
-### Experimento inicial de preço
+### Initial pricing experiment
 
-- Teste assistido: 14 dias e até 10 atendimentos, sem cartão.
-- Plano Fundador: R$ 149 por mês, com 30 atendimentos.
-- Excedente: R$ 5 por novo atendimento.
-- Cobrança do piloto: conferência mensal do ledger de uso e pagamento manual;
-  checkout automático fica fora do MVP.
+- Assisted trial: 14 days and up to 10 search cases, with no card required.
+- Founding Plan: BRL 149 per month, including 30 search cases.
+- Overage: BRL 5 per additional search case.
+- Pilot billing: monthly review of the usage ledger and manual payment;
+  automated checkout is outside the MVP.
 
-Esse preço é uma hipótese para entrevistar e vender, não uma conclusão de
-mercado. Como referência de teto percebido, plataformas imobiliárias mais
-amplas já anunciam planos a partir de R$ 229/mês, embora entreguem CRM, site e
-gestão além da busca. A comparação serve apenas como contexto de disposição a
-pagar, não como equivalência de produto: [planos Jetimob](https://www.jetimob.com/planos).
+This price is a hypothesis to test through interviews and actual sales, not a
+market conclusion. As a perceived ceiling reference, broader real estate
+platforms currently advertise plans starting at BRL 229 per month, although
+they include CRM, website, and management capabilities beyond property search.
+The comparison provides willingness-to-pay context only and does not imply
+product equivalence: [Jetimob plans](https://www.jetimob.com/planos).
 
-O preço será mantido somente se:
+The price will be retained only if:
 
-- o custo variável médio ficar abaixo de 20% da receita por atendimento;
-- pelo menos três dos cinco corretores do piloto aceitarem pagar;
-- a maioria relatar economia de tempo superior ao valor mensal cobrado.
+- the average variable cost stays below 20% of revenue per search case;
+- at least three of the five pilot brokers agree to pay;
+- most participants report time savings worth more than the monthly fee.
 
-## Piloto
+## Pilot
 
-O piloto terá cinco corretores e pelo menos cinquenta atendimentos reais. Uma
-shortlist é considerada útil quando o corretor confirma que as três opções
-podem ser apresentadas ao cliente, ainda que uma delas contenha ressalvas
-explicitamente mostradas.
+The pilot will involve five brokers and at least fifty real search cases. A
+shortlist is useful when the broker confirms that all three options can be
+presented to the client, even if one includes clearly disclosed caveats.
 
-### Métrica principal
+### Primary metric
 
-Pelo menos 70% dos atendimentos concluídos devem entregar três opções úteis em
-até dez minutos após a confirmação dos critérios.
+At least 70% of completed search cases must deliver three useful options within
+ten minutes after criteria confirmation.
 
-### Métricas auxiliares
+### Supporting metrics
 
-- tempo até o primeiro resultado;
-- tempo até a primeira shortlist completa;
-- percentual de anúncios com preço, localização e link válidos;
-- percentual de fontes consultadas com sucesso;
-- duplicatas removidas por atendimento;
-- opções encaminhadas ao cliente;
-- custo de coleta e de LLM por atendimento;
-- fontes que mais contribuem para opções úteis.
+- time to first result;
+- time to first complete shortlist;
+- percentage of listings with valid price, location, and link;
+- percentage of queried sources that complete successfully;
+- duplicates removed per search case;
+- options forwarded to the client;
+- collection and LLM cost per search case;
+- sources contributing the most useful options.
 
-## Limites do MVP
+## MVP boundaries
 
-Incluído:
+Included:
 
-- compra de imóveis residenciais em Americana/SP e região;
-- corretores autônomos autenticados;
-- fontes cadastradas apenas pelo administrador;
-- busca híbrida, shortlist Top 3 e refinamento por sete dias;
-- ledger de uso para cobrança manual;
-- feedback simples sobre utilidade das recomendações.
+- residential properties for sale in Americana and the surrounding region;
+- authenticated independent real estate brokers;
+- sources registered only by an administrator;
+- hybrid search, Top 3 shortlist, and seven-day refinement window;
+- usage ledger for manual billing;
+- simple usefulness feedback on recommendations.
 
-Não incluído:
+Not included:
 
-- aluguel, temporada e imóveis comerciais;
-- comprador final como usuário;
-- CRM, funil de vendas ou gestão de contratos;
-- cadastro livre de fontes pelo corretor;
-- checkout e emissão fiscal automáticos;
-- aplicativo móvel nativo;
-- publicação ou republicação dos anúncios.
+- rentals, short-term rentals, and commercial properties;
+- end buyers as users;
+- CRM, sales pipeline, or contract management;
+- unrestricted source registration by brokers;
+- automated checkout and tax document issuance;
+- native mobile application;
+- publishing or republishing property listings.
 
-## Riscos de negócio
+## Business risks
 
-| Risco | Como validar ou reduzir |
+| Risk | Validation or mitigation |
 |---|---|
-| Fontes bloqueiam ou proíbem coleta | Só ativar fontes aprovadas após revisar termos, robots.txt e alternativa oficial de integração |
-| Anúncios desatualizados prejudicam confiança | Exibir última verificação, validar o link e retirar anúncios que falharem repetidamente |
-| Três resultados não são realmente úteis | Coletar feedback por opção e revisar pesos do ranking semanalmente no piloto |
-| LLM inventa atributos | Exigir evidência por campo e limitar a IA a explicar dados fornecidos pelo sistema |
-| Corretor não aceita pagar R$ 149 | Fazer a oferta paga durante o piloto, não apenas pesquisa de opinião |
-| Custo variável cresce com o uso | Registrar custo por job e chamada de LLM, impor limites e preferir extração determinística |
+| Sources block or prohibit collection | Activate a source only after reviewing its terms, robots.txt, and official integration alternatives |
+| Stale listings undermine trust | Show the latest verification, validate the link, and remove listings after repeated failures |
+| The three results are not genuinely useful | Collect feedback per option and review ranking weights weekly during the pilot |
+| The LLM invents attributes | Require field-level evidence and restrict AI to explaining data supplied by the system |
+| Brokers will not pay BRL 149 | Make a paid offer during the pilot instead of relying on opinion surveys |
+| Variable costs rise with usage | Record cost per job and LLM call, enforce limits, and prefer deterministic extraction |
 
-## Critério de continuidade
+## Continuation criteria
 
-O produto avança para uma versão comercial quando cumprir simultaneamente:
+The product advances to a commercial version only after meeting all of the
+following conditions:
 
-1. cinquenta atendimentos reais concluídos;
-2. 70% deles com três opções úteis em até dez minutos;
-3. pelo menos três corretores dispostos a pagar o Plano Fundador;
-4. custo variável abaixo de 20% da receita projetada;
-5. ao menos três fontes estáveis e autorizadas contribuindo com resultados.
+1. fifty real search cases completed;
+2. 70% delivering three useful options within ten minutes;
+3. at least three brokers willing to pay for the Founding Plan;
+4. variable cost below 20% of projected revenue;
+5. at least three stable and authorized sources contributing results.
 
-Se esses critérios não forem atingidos, a prioridade será corrigir cobertura e
-qualidade dos dados antes de adicionar mais agentes, regiões ou funcionalidades.
+If these criteria are not met, the priority is to improve data coverage and
+quality before adding more AI agents, regions, or features.
