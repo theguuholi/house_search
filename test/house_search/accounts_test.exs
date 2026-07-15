@@ -4,7 +4,8 @@ defmodule HouseSearch.AccountsTest do
   import HouseSearch.AccountsFixtures
 
   alias HouseSearch.Accounts
-  alias HouseSearch.Accounts.{User, UserToken}
+  alias HouseSearch.Accounts.User
+  alias HouseSearch.Accounts.UserToken
 
   describe "get_user_by_email/1" do
     test "does not return the user if the email does not exist" do
@@ -86,7 +87,12 @@ defmodule HouseSearch.AccountsTest do
 
     test "registers users with a hashed password" do
       email = unique_user_email()
-      {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
+
+      {:ok, user} =
+        [email: email]
+        |> valid_user_attributes()
+        |> Accounts.register_user()
+
       assert user.email == email
       assert is_binary(user.hashed_password)
       assert is_nil(user.confirmed_at)
