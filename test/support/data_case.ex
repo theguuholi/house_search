@@ -18,12 +18,12 @@ defmodule HouseSearch.DataCase do
 
   using do
     quote do
-      alias HouseSearch.Repo
-
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
       import HouseSearch.DataCase
+
+      alias HouseSearch.Repo
     end
   end
 

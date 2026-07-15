@@ -1,0 +1,13 @@
+{
+  "minimum_coverage": 60,
+  "skip_files": [
+    "lib/mix/tasks/",
+    "lib/house_search/application.ex",
+    "lib/house_search.ex",
+    "lib/house_search_web/components/core_components.ex",
+    "lib/house_search_web/gettext.ex",
+    "lib/house_search_web/endpoint.ex",
+    "lib/house_search_web/telemetry.ex",
+    "lib/house_search_web.ex"
+  ]
+}
