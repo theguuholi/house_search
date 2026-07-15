@@ -1,10 +1,11 @@
 defmodule HouseSearchWeb.UserAuthTest do
   use HouseSearchWeb.ConnCase, async: true
 
-  alias Phoenix.LiveView
+  import HouseSearch.AccountsFixtures
+
   alias HouseSearch.Accounts
   alias HouseSearchWeb.UserAuth
-  import HouseSearch.AccountsFixtures
+  alias Phoenix.LiveView
 
   @remember_me_cookie "_house_search_web_user_remember_me"
 

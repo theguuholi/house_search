@@ -1,8 +1,8 @@
 defmodule HouseSearchWeb.UserForgotPasswordLiveTest do
   use HouseSearchWeb.ConnCase, async: true
 
-  import Phoenix.LiveViewTest
   import HouseSearch.AccountsFixtures
+  import Phoenix.LiveViewTest
 
   alias HouseSearch.Accounts
   alias HouseSearch.Repo

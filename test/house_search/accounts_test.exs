@@ -1,9 +1,9 @@
 defmodule HouseSearch.AccountsTest do
   use HouseSearch.DataCase
 
-  alias HouseSearch.Accounts
-
   import HouseSearch.AccountsFixtures
+
+  alias HouseSearch.Accounts
   alias HouseSearch.Accounts.{User, UserToken}
 
   describe "get_user_by_email/1" do

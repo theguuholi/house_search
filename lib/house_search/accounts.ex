@@ -4,9 +4,9 @@ defmodule HouseSearch.Accounts do
   """
 
   import Ecto.Query, warn: false
-  alias HouseSearch.Repo
 
-  alias HouseSearch.Accounts.{User, UserToken, UserNotifier}
+  alias HouseSearch.Accounts.{User, UserNotifier, UserToken}
+  alias HouseSearch.Repo
 
   ## Database getters
 

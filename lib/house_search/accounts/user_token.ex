@@ -1,6 +1,8 @@
 defmodule HouseSearch.Accounts.UserToken do
   use Ecto.Schema
+
   import Ecto.Query
+
   alias HouseSearch.Accounts.UserToken
 
   @hash_algorithm :sha256

@@ -1,8 +1,8 @@
 defmodule HouseSearchWeb.UserLoginLiveTest do
   use HouseSearchWeb.ConnCase, async: true
 
-  import Phoenix.LiveViewTest
   import HouseSearch.AccountsFixtures
+  import Phoenix.LiveViewTest
 
   describe "Log in page" do
     test "renders log in page", %{conn: conn} do

@@ -1,8 +1,8 @@
 defmodule HouseSearchWeb.UserAuth do
   use HouseSearchWeb, :verified_routes
 
-  import Plug.Conn
   import Phoenix.Controller
+  import Plug.Conn
 
   alias HouseSearch.Accounts
 

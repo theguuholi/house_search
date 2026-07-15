@@ -1,9 +1,10 @@
 defmodule HouseSearchWeb.UserSettingsLiveTest do
   use HouseSearchWeb.ConnCase, async: true
 
-  alias HouseSearch.Accounts
-  import Phoenix.LiveViewTest
   import HouseSearch.AccountsFixtures
+  import Phoenix.LiveViewTest
+
+  alias HouseSearch.Accounts
 
   describe "Settings page" do
     test "renders settings page", %{conn: conn} do
