@@ -11,6 +11,9 @@ defmodule HouseSearch.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :system_role, Ecto.Enum, values: [:admin, :member], default: :member
+    field :status, Ecto.Enum, values: [:active, :suspended], default: :active
+    field :suspended_at, :utc_datetime_usec
 
     timestamps(type: :utc_datetime)
   end
@@ -131,6 +134,12 @@ defmodule HouseSearch.Accounts.User do
   def confirm_changeset(user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
     change(user, confirmed_at: now)
+  end
+
+  def role_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:system_role, :status, :suspended_at])
+    |> validate_required([:system_role, :status])
   end
 
   @doc """

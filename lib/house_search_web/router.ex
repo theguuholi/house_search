@@ -52,7 +52,6 @@ defmodule HouseSearchWeb.Router do
 
     live_session :redirect_if_user_is_authenticated,
       on_mount: [{HouseSearchWeb.UserAuth, :redirect_if_user_is_authenticated}] do
-      live "/users/register", UserRegistrationLive, :new
       live "/users/log_in", UserLoginLive, :new
       live "/users/reset_password", UserForgotPasswordLive, :new
       live "/users/reset_password/:token", UserResetPasswordLive, :edit
@@ -71,6 +70,15 @@ defmodule HouseSearchWeb.Router do
     end
   end
 
+  scope "/admin", HouseSearchWeb.Admin, as: :admin do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_admin_user,
+      on_mount: [{HouseSearchWeb.UserAuth, :ensure_authenticated}] do
+      live "/brokers", BrokerLive, :index
+    end
+  end
+
   scope "/", HouseSearchWeb do
     pipe_through [:browser]
 
@@ -78,6 +86,7 @@ defmodule HouseSearchWeb.Router do
 
     live_session :current_user,
       on_mount: [{HouseSearchWeb.UserAuth, :mount_current_user}] do
+      live "/invitations/:token", InvitationLive, :edit
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end

@@ -57,6 +57,19 @@ defmodule HouseSearch.Accounts.UserNotifier do
     """)
   end
 
+  def deliver_invitation_instructions(invitation, url) do
+    deliver(invitation.email, "HouseSearch invitation", """
+
+    Hi #{invitation.name},
+
+    You can activate your HouseSearch pilot access by visiting:
+
+    #{url}
+
+    This invitation is single-use and expires soon.
+    """)
+  end
+
   @doc """
   Deliver instructions to update a user email.
   """

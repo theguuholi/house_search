@@ -93,6 +93,7 @@ defmodule HouseSearchWeb.UserAuth do
   def fetch_current_user(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
     user = user_token && Accounts.get_user_by_session_token(user_token)
+    user = if user && user.status == :active, do: user
     assign(conn, :current_user, user)
   end
 
@@ -216,7 +217,7 @@ defmodule HouseSearchWeb.UserAuth do
   defp put_token_in_session(conn, token) do
     conn
     |> put_session(:user_token, token)
-    |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
+    |> put_session(:live_socket_id, "users:#{Accounts.get_user_by_session_token(token).id}")
   end
 
   defp maybe_store_return_to(%{method: "GET"} = conn) do
