@@ -1,0 +1,4 @@
+interface:
+  display_name: "Phoenix LiveView Standards"
+  short_description: "Build HouseSearch LiveView code safely"
+  default_prompt: "Use $phoenix-liveview-standards to implement this HouseSearch LiveView change."

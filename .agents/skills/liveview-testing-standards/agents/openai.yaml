@@ -1,0 +1,4 @@
+interface:
+  display_name: "LiveView Testing Standards"
+  short_description: "Test HouseSearch LiveView behavior well"
+  default_prompt: "Use $liveview-testing-standards to test this HouseSearch LiveView behavior."
