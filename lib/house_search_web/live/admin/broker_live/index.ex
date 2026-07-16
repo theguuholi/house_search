@@ -22,10 +22,9 @@ defmodule HouseSearchWeb.Admin.BrokerLive.Index do
     changeset =
       %Accounts.Invitation{}
       |> Accounts.Invitation.changeset(
-        Map.merge(params, %{
-          "inviter_id" => socket.assigns.current_user.id,
-          "expires_at" => DateTime.utc_now()
-        })
+        params,
+        socket.assigns.current_user.id,
+        DateTime.utc_now()
       )
       |> Map.put(:action, :validate)
 

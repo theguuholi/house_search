@@ -13,12 +13,12 @@ defmodule HouseSearch.AccountsInviteOnlyTest do
   describe "invitation contract" do
     test "UT-001 invalid invitation email returns an email format error" do
       changeset =
-        Invitation.changeset(%Invitation{}, %{
-          email: "not-an-email",
-          name: "Ana Broker",
-          inviter_id: Ecto.UUID.generate(),
-          expires_at: DateTime.utc_now()
-        })
+        Invitation.changeset(
+          %Invitation{},
+          %{email: "not-an-email", name: "Ana Broker"},
+          Ecto.UUID.generate(),
+          DateTime.utc_now()
+        )
 
       refute changeset.valid?
       assert "must have the @ sign and no spaces" in errors_on(changeset).email
@@ -26,12 +26,12 @@ defmodule HouseSearch.AccountsInviteOnlyTest do
 
     test "UT-002 blank name or email reports required fields" do
       changeset =
-        Invitation.changeset(%Invitation{}, %{
-          email: "",
-          name: "",
-          inviter_id: Ecto.UUID.generate(),
-          expires_at: DateTime.utc_now()
-        })
+        Invitation.changeset(
+          %Invitation{},
+          %{email: "", name: ""},
+          Ecto.UUID.generate(),
+          DateTime.utc_now()
+        )
 
       refute changeset.valid?
       assert "can't be blank" in errors_on(changeset).email

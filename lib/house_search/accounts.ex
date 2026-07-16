@@ -445,13 +445,8 @@ defmodule HouseSearch.Accounts do
   defp insert_invitation(admin, attrs, email, invitation_url_fun) do
     token = 32 |> :crypto.strong_rand_bytes() |> Base.url_encode64(padding: false)
 
-    attrs =
-      attrs
-      |> stringify_keys()
-      |> Map.merge(%{"inviter_id" => admin.id, "expires_at" => invitation_expiry()})
-
     %Invitation{}
-    |> Invitation.changeset(attrs)
+    |> Invitation.changeset(attrs, admin.id, invitation_expiry())
     |> Invitation.token_changeset(token)
     |> Repo.insert()
     |> handle_invitation_insert(email, token, invitation_url_fun)
@@ -523,13 +518,13 @@ defmodule HouseSearch.Accounts do
 
   defp insert_account!(invitation, now) do
     %Account{}
-    |> Account.changeset(%{name: invitation.name, pilot_started_at: now})
+    |> Account.create_changeset(%{name: invitation.name}, now)
     |> Repo.insert!()
   end
 
   defp insert_membership!(account, user) do
     %Membership{}
-    |> Membership.changeset(%{account_id: account.id, user_id: user.id, role: :owner})
+    |> Membership.changeset(account.id, user.id, :owner)
     |> Repo.insert!(
       on_conflict: :nothing,
       conflict_target: [:account_id, :user_id]
