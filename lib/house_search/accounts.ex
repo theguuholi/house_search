@@ -366,6 +366,18 @@ defmodule HouseSearch.Accounts do
     end
   end
 
+  def revoke_invitation(%User{} = admin, invitation_id) when is_binary(invitation_id) do
+    with :ok <- Authorization.authorize(admin, :manage_brokers, :admin),
+         %Invitation{} = invitation <- Repo.get(Invitation, invitation_id) do
+      invitation
+      |> Invitation.revoke_changeset()
+      |> Repo.update()
+    else
+      nil -> {:error, :not_found}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   def suspend_user(%User{} = admin, %User{} = user) do
     with :ok <- Authorization.authorize(admin, :suspend_user, :admin) do
       now = DateTime.utc_now()

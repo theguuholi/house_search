@@ -75,7 +75,7 @@ defmodule HouseSearchWeb.Router do
 
     live_session :require_admin_user,
       on_mount: [{HouseSearchWeb.UserAuth, :ensure_authenticated}] do
-      live "/brokers", BrokerLive, :index
+      live "/brokers", BrokerLive.Index, :index
     end
   end
 

@@ -1,7 +1,6 @@
 defmodule HouseSearchWeb.InvitationLiveTest do
   use HouseSearchWeb.ConnCase, async: false
 
-  import Ecto.Query
   import HouseSearch.AccountsFixtures
   import Phoenix.LiveViewTest
 
@@ -12,8 +11,8 @@ defmodule HouseSearchWeb.InvitationLiveTest do
   test "IT-006 activation resumes and completes one user account membership", %{conn: conn} do
     %{token: token} = invitation_fixture(email: "ana@example.com")
 
-    {:ok, lv, html} = live(conn, ~p"/invitations/#{token}")
-    assert html =~ "Activate pilot access"
+    {:ok, lv, _html} = live(conn, ~p"/invitations/#{token}")
+    assert has_element?(lv, "h1", "Activate pilot access")
 
     {:ok, _conn} =
       lv
@@ -38,26 +37,24 @@ defmodule HouseSearchWeb.InvitationLiveTest do
         password_confirmation: valid_user_password()
       })
 
-    {:ok, _lv, html} = live(conn, ~p"/invitations/#{token}")
+    {:ok, lv, _html} = live(conn, ~p"/invitations/#{token}")
 
-    assert html =~ "already been accepted"
-    assert html =~ "Log in"
-
-    user_count =
-      Accounts.User
-      |> where([u], u.id == ^user.id)
-      |> Repo.aggregate(:count)
-
-    assert user_count == 1
+    assert has_element?(lv, "p", "This invitation has already been accepted.")
+    assert has_element?(lv, "a[href='/users/log_in']", "Log in")
+    assert Accounts.get_user!(user.id)
   end
 
   test "IT-008 signed-in different identity must sign out before activation", %{conn: conn} do
     other = user_fixture(email: "other@example.com")
     %{token: token} = invitation_fixture(email: "broker@example.com")
 
-    {:ok, _lv, html} = conn |> log_in_user(other) |> live(~p"/invitations/#{token}")
+    {:ok, lv, _html} = conn |> log_in_user(other) |> live(~p"/invitations/#{token}")
 
-    assert html =~ "Sign out and open this invitation with the matching email address"
+    assert has_element?(
+             lv,
+             "p",
+             "Sign out and open this invitation with the matching email address."
+           )
   end
 
   test "IT-009 expired revoked and accepted tokens render generic states", %{conn: conn} do
@@ -83,12 +80,12 @@ defmodule HouseSearchWeb.InvitationLiveTest do
         password_confirmation: valid_user_password()
       })
 
-    {:ok, _lv, expired_html} = live(conn, ~p"/invitations/#{expired_token}")
-    {:ok, _lv, revoked_html} = live(conn, ~p"/invitations/#{revoked_token}")
-    {:ok, _lv, accepted_html} = live(conn, ~p"/invitations/#{accepted_token}")
+    {:ok, expired_lv, _html} = live(conn, ~p"/invitations/#{expired_token}")
+    {:ok, revoked_lv, _html} = live(conn, ~p"/invitations/#{revoked_token}")
+    {:ok, accepted_lv, _html} = live(conn, ~p"/invitations/#{accepted_token}")
 
-    assert expired_html =~ "expired"
-    assert revoked_html =~ "no longer available"
-    assert accepted_html =~ "already been accepted"
+    assert has_element?(expired_lv, "p", "This invitation has expired.")
+    assert has_element?(revoked_lv, "p", "This invitation is no longer available.")
+    assert has_element?(accepted_lv, "p", "This invitation has already been accepted.")
   end
 end

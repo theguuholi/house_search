@@ -4,44 +4,6 @@ defmodule HouseSearchWeb.InvitationLive do
   alias HouseSearch.Accounts
   alias HouseSearch.Accounts.Invitation
 
-  def render(assigns) do
-    ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Activate pilot access
-        <:subtitle>{subtitle(@state)}</:subtitle>
-      </.header>
-
-      <.simple_form
-        :if={@state == :usable}
-        for={@form}
-        id="activation_form"
-        phx-submit="activate"
-        phx-change="validate"
-      >
-        <.input field={@form[:password]} type="password" label="Password" required />
-        <.input
-          field={@form[:password_confirmation]}
-          type="password"
-          label="Confirm password"
-          required
-        />
-        <:actions>
-          <.button phx-disable-with="Activating..." class="w-full">Activate account</.button>
-        </:actions>
-      </.simple_form>
-
-      <.link
-        :if={@state in [:already_accepted, :accepted]}
-        navigate={~p"/users/log_in"}
-        class="font-semibold"
-      >
-        Log in
-      </.link>
-    </div>
-    """
-  end
-
   def mount(%{"token" => token}, _session, socket) do
     invitation = Accounts.get_invitation_by_token(token)
     state = invitation_state(invitation, socket.assigns[:current_user])
