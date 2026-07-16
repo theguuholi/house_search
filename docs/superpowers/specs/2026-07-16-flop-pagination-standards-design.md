@@ -30,7 +30,10 @@ allowlist:
 
 - Page-based pagination only.
 - Default page size of 25 and maximum page size of 100.
-- Sortable fields: `name`, `email`, `status`, and `inserted_at`.
+- User-facing sortable fields: `name`, `email`, `status`, and `inserted_at`.
+- `id` is also present in the schema sortable allowlist because Flop requires
+  every `default_order` field to be sortable. It is reserved for deterministic
+  tie-breaking and is not exposed as a table column or sort control.
 - A deterministic default order that preserves the current behavior and adds a
   stable tie-breaker: `inserted_at` descending, `email` ascending, then `id`
   ascending.
