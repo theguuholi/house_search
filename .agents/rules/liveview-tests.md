@@ -17,6 +17,7 @@ Applies to new and materially touched LiveView/component tests. Untouched legacy
 
 - Assert observable behavior with `has_element?/2-3` and stable semantic selectors. Stable IDs/ARIA selectors do not need visible text unless copy is the contract.
 - Drive forms and events through `form/3` and `element/3`; do not use brittle raw-HTML substring assertions when selectors apply.
+- For LiveView interaction outcomes, check the LiveView/page, not the database. Do not use `Repo.aggregate/3` or direct persistence reads as the assertion that an invalid LiveView submit inserted nothing; assert that the page still shows the empty state or omits the row.
 - Verify redirect, navigate, and patch destinations and resulting behavior.
 - Follow [Interactions and Navigation](../skills/liveview-testing-standards/references/interactions-and-navigation.md).
 

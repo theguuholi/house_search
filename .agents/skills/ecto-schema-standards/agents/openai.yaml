@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ecto Schema Standards"
+  short_description: "Build HouseSearch schemas with docs, types, and tests"
+  default_prompt: "Use $ecto-schema-standards to implement this HouseSearch Ecto schema change."

@@ -26,6 +26,7 @@ If the change is documentation/configuration-only, use the narrowest determinist
 - Select forms and elements semantically with stable IDs, attributes, roles, ARIA state, and visible text when text is part of the contract.
 - Use `form/3`, `element/3`, and render helpers for interactions; assert the resulting DOM or navigation behavior.
 - Avoid raw rendered-HTML substring assertions when a semantic selector can express the behavior.
+- In LiveView tests, assert user-visible outcomes through the page with `has_element?/2-3`; do not use `Repo.aggregate/3` or similar persistence checks to prove what the LiveView rendered.
 - Test hook-to-server events with `render_hook/3`; this does not test JavaScript lifecycle code.
 
 ## Reference routing

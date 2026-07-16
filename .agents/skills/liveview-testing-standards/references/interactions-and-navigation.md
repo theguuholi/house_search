@@ -24,7 +24,7 @@ Preferred selector signals:
 
 Stable IDs or ARIA selectors are sufficient without visible text when the test concerns presence, wiring, or state rather than copy. Do not require text mechanically.
 
-Avoid utility CSS classes, DOM depth, full HTML snapshots, `html =~`, and `render(view) =~` when `has_element?/2-3` can state the same contract.
+Avoid utility CSS classes, DOM depth, full HTML snapshots, `html =~`, and `render(view) =~` when `has_element?/2-3` can state the same contract. Do not use `Repo.aggregate/3`, direct `Repo` reads, or context persistence queries in LiveView tests to prove an interaction result that should be visible on the page; assert the page state instead.
 
 ```elixir
 assert has_element?(view, "#property-form input[name='property[address]']")

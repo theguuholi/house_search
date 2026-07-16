@@ -284,7 +284,7 @@ receive tagged tuples. Routes use verified routes and authenticated
 | `GET /requests/new` | `RequestLive` | Active broker; draft/intake/confirmation/usage quote |
 | `GET /cases/:id` | `CaseLive` | Owning account or administrator; persisted progress and shortlist actions |
 | `GET /cases/:id/refine` | `RefinementLive` | Owning active broker and in-window case |
-| `GET /admin/brokers` | `Admin.BrokerLive` | Administrator invitations, plan and suspension actions |
+| `GET /admin/brokers` | `Admin.BrokerLive.Index` | Administrator invitations, plan and suspension actions |
 | `GET /admin/sources` | `Admin.SourceLive` | Administrator source compliance and health actions |
 | `GET /admin/usage` | `Admin.UsageLive` | Administrator account/case/ledger reconciliation |
 
