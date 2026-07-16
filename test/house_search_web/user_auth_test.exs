@@ -22,7 +22,7 @@ defmodule HouseSearchWeb.UserAuthTest do
     test "stores the user token in the session", %{conn: conn, user: user} do
       conn = UserAuth.log_in_user(conn, user)
       assert token = get_session(conn, :user_token)
-      assert get_session(conn, :live_socket_id) == "users_sessions:#{Base.url_encode64(token)}"
+      assert get_session(conn, :live_socket_id) == "users:#{user.id}"
       assert redirected_to(conn) == ~p"/"
       assert Accounts.get_user_by_session_token(token)
     end
@@ -106,8 +106,7 @@ defmodule HouseSearchWeb.UserAuthTest do
       assert conn.assigns.current_user.id == user.id
       assert get_session(conn, :user_token) == user_token
 
-      assert get_session(conn, :live_socket_id) ==
-               "users_sessions:#{Base.url_encode64(user_token)}"
+      assert get_session(conn, :live_socket_id) == "users:#{user.id}"
     end
 
     test "does not authenticate if data is missing", %{conn: conn, user: user} do

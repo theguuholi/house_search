@@ -1,5 +1,5 @@
 ---
-status: pending
+status: completed
 title: Establish invite-only accounts and broker access
 type: backend
 complexity: high
@@ -29,13 +29,15 @@ Extend the generated Phoenix authentication foundation into an invite-only, acco
 </requirements>
 
 ## Subtasks
-- [ ] 1.1 Add accounts, memberships, invitations, pilot settings, user roles/status, database constraints, and indexes.
-- [ ] 1.2 Extend `HouseSearch.Accounts` with invitation, acceptance, capacity, suspension, restoration, actor, and authorization APIs.
-- [ ] 1.3 Adapt generated session and credential flows for invite-only and suspended-user behavior.
-- [ ] 1.4 Add active-account and administrator plugs/on-mount hooks with account-scoped actor assigns.
-- [ ] 1.5 Deliver invitation activation and administrator broker-management LiveViews with search and pagination.
-- [ ] 1.6 Remove public-registration routes and update all affected navigation and generated tests.
-- [ ] 1.7 Expand account fixtures and concurrency helpers for administrators, brokers, memberships, invitations, and pilot capacity.
+
+- [x] 1.1 Add accounts, memberships, invitations, pilot settings, user roles/status, database constraints, and indexes.
+- [x] 1.2 Extend `HouseSearch.Accounts` with invitation, acceptance, capacity, suspension, restoration, actor, and authorization APIs.
+- [x] 1.3 Adapt generated session and credential flows for invite-only and suspended-user behavior.
+- [x] 1.4 Add active-account and administrator plugs/on-mount hooks with account-scoped actor assigns.
+- [x] 1.5 Deliver invitation activation and administrator broker-management LiveViews with search and pagination.
+- [x] 1.6 Remove public-registration routes and update all affected navigation and generated tests.
+- [x] 1.7 Expand account fixtures and concurrency helpers for administrators, brokers, memberships, invitations, and pilot capacity.
+
 
 ## Implementation Details
 Use additive migrations and retain the generated authentication context as the foundation described by the TechSpec. The account is the ownership boundary for later cases and billing; expose public authorization APIs rather than allowing other contexts to query Accounts schemas.
@@ -75,12 +77,11 @@ Use additive migrations and retain the generated authentication context as the f
 
 Cases assigned from `_tests.md`, the test contract — read each ID's full definition there before writing tests.
 
-- [ ] UT-001, UT-002, UT-003, UT-004, UT-005, UT-006, UT-007, UT-008, UT-009, UT-010 — invitation validation/lifecycle, pilot capacity, roles, membership authorization, and suspension.
-- [ ] IT-001, IT-002, IT-003, IT-004, IT-005, IT-006, IT-007, IT-008, IT-009, IT-010 — complete admin and broker access behavior, concurrency, replay, identity safety, and pagination.
-
+- [x] UT-001, UT-002, UT-003, UT-004, UT-005, UT-006, UT-007, UT-008, UT-009, UT-010 — invitation validation/lifecycle, pilot capacity, roles, membership authorization, and suspension.
+- [x] IT-001, IT-002, IT-003, IT-004, IT-005, IT-006, IT-007, IT-008, IT-009, IT-010 — complete admin and broker access behavior, concurrency, replay, identity safety, and pagination.
+- [ ] 
 ## Success Criteria
 - Every assigned test case implemented and passing
 - Public registration is unavailable while generated credential flows remain covered.
 - Concurrent invitations and suspension/session races produce one auditable outcome.
 - Later contexts can authorize an explicit `%{user_id, account_id}` actor without querying Accounts tables.
-

@@ -54,7 +54,7 @@ defmodule HouseSearchWeb.UserSessionControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Welcome back!"
     end
 
-    test "login following registration", %{conn: conn, user: user} do
+    test "ignores obsolete registration action during login", %{conn: conn, user: user} do
       conn =
         conn
         |> post(~p"/users/log_in", %{
@@ -66,7 +66,7 @@ defmodule HouseSearchWeb.UserSessionControllerTest do
         })
 
       assert redirected_to(conn) == ~p"/"
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Account created successfully"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Welcome back!"
     end
 
     test "login following password update", %{conn: conn, user: user} do

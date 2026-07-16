@@ -453,6 +453,8 @@ defmodule HouseSearchWeb.CoreComponents do
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
+  attr :meta, Flop.Meta, default: nil
+  attr :path, :any, default: nil
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
 
@@ -462,6 +464,7 @@ defmodule HouseSearchWeb.CoreComponents do
 
   slot :col, required: true do
     attr :label, :string
+    attr :field, :atom
   end
 
   slot :action, doc: "the slot for showing user actions in the last table column"
@@ -472,6 +475,14 @@ defmodule HouseSearchWeb.CoreComponents do
         assign(assigns, row_id: assigns.row_id || fn {id, _item} -> id end)
       end
 
+    if assigns.meta && assigns.path do
+      sortable_table(assigns)
+    else
+      plain_table(assigns)
+    end
+  end
+
+  defp plain_table(assigns) do
     ~H"""
     <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
       <table class="w-[40rem] mt-11 sm:w-full">
@@ -516,6 +527,179 @@ defmodule HouseSearchWeb.CoreComponents do
         </tbody>
       </table>
     </div>
+    """
+  end
+
+  defp sortable_table(assigns) do
+    assigns =
+      assigns
+      |> assign(:sortable_col, sortable_columns(assigns.col, assigns.meta))
+      |> assign(:sortable_action, sortable_actions(assigns.action))
+      |> assign(:table_opts, sortable_table_opts())
+
+    ~H"""
+    <Flop.Phoenix.table
+      id={@id}
+      items={@rows}
+      meta={@meta}
+      path={@path}
+      row_id={@row_id}
+      row_click={@row_click}
+      row_item={@row_item}
+      opts={@table_opts}
+    >
+      <:col
+        :let={row}
+        :for={col <- @sortable_col}
+        label={col[:label]}
+        field={col[:field]}
+        tbody_td_attrs={col[:tbody_td_attrs]}
+      >
+        {render_slot(col, row)}
+      </:col>
+      <:action
+        :let={row}
+        :for={action <- @sortable_action}
+        label={action[:label]}
+        tbody_td_attrs={action[:tbody_td_attrs]}
+      >
+        {render_slot(action, row)}
+      </:action>
+    </Flop.Phoenix.table>
+    """
+  end
+
+  defp sortable_columns(columns, meta) do
+    columns
+    |> Enum.with_index()
+    |> Enum.map(fn {column, index} ->
+      column
+      |> Map.put(:tbody_td_attrs,
+        class: [
+          "relative py-4 pr-6",
+          index == 0 && "font-semibold text-zinc-900",
+          "group-hover:bg-zinc-50"
+        ]
+      )
+      |> maybe_add_sort_label(meta)
+    end)
+  end
+
+  defp sortable_actions(actions) do
+    Enum.map(actions, fn action ->
+      action
+      |> Map.put(:label, action_label(%{}))
+      |> Map.put(:tbody_td_attrs,
+        class: "relative w-14 py-4 text-right font-semibold text-zinc-900"
+      )
+    end)
+  end
+
+  defp maybe_add_sort_label(%{field: field, label: label} = column, meta) when is_atom(field) do
+    if sortable_field?(field, meta.schema) do
+      next_direction =
+        meta.flop
+        |> Flop.push_order(field)
+        |> Map.fetch!(:order_directions)
+        |> List.first()
+        |> accessible_sort_direction()
+
+      Map.put(column, :label, sort_label(%{label: label, direction: next_direction}))
+    else
+      column
+    end
+  end
+
+  defp maybe_add_sort_label(column, _meta), do: column
+
+  defp sortable_field?(_field, nil), do: true
+
+  defp sortable_field?(field, schema) do
+    field in (schema |> struct() |> Flop.Schema.sortable())
+  end
+
+  defp accessible_sort_direction(direction)
+       when direction in [:desc, :desc_nulls_first, :desc_nulls_last],
+       do: "descending"
+
+  defp accessible_sort_direction(_direction), do: "ascending"
+
+  defp sort_label(assigns) do
+    ~H"""
+    {@label}<span class="sr-only">{", sort #{@direction}"}</span>
+    """
+  end
+
+  defp action_label(assigns) do
+    ~H"""
+    <span class="sr-only">{gettext("Actions")}</span>
+    """
+  end
+
+  defp sortable_table_opts do
+    [
+      container: true,
+      container_attrs: [class: "overflow-y-auto px-4 sm:overflow-visible sm:px-0"],
+      no_results_content: nil,
+      table_attrs: [class: "w-[40rem] mt-11 sm:w-full"],
+      thead_attrs: [class: "text-sm text-left leading-6 text-zinc-500"],
+      thead_th_attrs: [class: "p-0 pb-4 pr-6 font-normal"],
+      th_wrapper_attrs: [class: "inline-flex items-center gap-1"],
+      tbody_attrs: [
+        class:
+          "relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
+      ],
+      tbody_tr_attrs: [class: "group hover:bg-zinc-50"],
+      symbol_attrs: [class: "inline-flex"],
+      symbol_asc: icon(%{name: "hero-chevron-up-mini", class: "size-4"}),
+      symbol_desc: icon(%{name: "hero-chevron-down-mini", class: "size-4"}),
+      symbol_unsorted: icon(%{name: "hero-chevron-up-down-mini", class: "size-4"})
+    ]
+  end
+
+  @doc """
+  Renders stateless page navigation for Flop metadata.
+  """
+  attr :meta, Flop.Meta, required: true
+  attr :path, :any, required: true
+  attr :label, :string, default: "Pagination"
+  attr :target, :any, default: nil
+
+  def pagination(assigns) do
+    ~H"""
+    <Flop.Phoenix.pagination
+      meta={@meta}
+      path={@path}
+      target={@target}
+      aria-label={@label}
+      class="mt-8 flex items-center justify-between gap-4"
+      page_list_attrs={[class: "flex items-center gap-1"]}
+      page_list_item_attrs={[class: "inline-flex"]}
+      page_link_attrs={[
+        class:
+          "inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg px-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+      ]}
+      current_page_link_attrs={[
+        class:
+          "inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-zinc-900 px-3 text-sm font-semibold text-white"
+      ]}
+      disabled_link_attrs={[
+        class: "inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-semibold text-zinc-400"
+      ]}
+    >
+      <:previous attrs={[
+        class:
+          "inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+      ]}>
+        Previous
+      </:previous>
+      <:next attrs={[
+        class:
+          "inline-flex min-h-10 items-center rounded-lg px-3 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900"
+      ]}>
+        Next
+      </:next>
+    </Flop.Phoenix.pagination>
     """
   end
 

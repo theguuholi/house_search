@@ -267,7 +267,7 @@ Derived from `_user_stories.md` for behavior and `_techspec.md` for components.
 
 ### Pilot Access — US-001
 
-- **IT-001**: submit `bad-email` in `Admin.BrokerLive`; the form renders the email correction and `invitations` remains empty.
+- **IT-001**: submit `bad-email` in `Admin.BrokerLive.Index`; the form renders the email correction and `invitations` remains empty.
 - **IT-002**: submit an invitation with blank name, then blank email; each required error renders and no mail or row is created.
 - **IT-003**: seed the configured number of active/pending participants and invite one more; the LiveView renders the limit and inserts nothing.
 - **IT-004**: an authenticated broker navigates to `/admin/brokers` and invokes invite/suspend events; access is denied and no account identity is exposed or changed.

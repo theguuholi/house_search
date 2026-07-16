@@ -7,8 +7,9 @@ interactive web experience. Treat `lib/house_search_web/live` and HEEx templates
 as first-class UI surfaces, and prefer LiveView-native patterns before adding
 custom client-side behavior.
 
-Note: `RTK.md` is referenced above as the shared instruction entrypoint, but the
-file is not present in this checkout at the time this note was written.
+The standards baseline is Phoenix 1.7.24 and LiveView 1.0.18, as locked in
+`mix.lock`. Do not introduce LiveView 1.1-only conventions without a deliberate
+dependency and standards upgrade.
 
 ## Local Development
 
@@ -22,11 +23,38 @@ setup/build through the aliases in `mix.exs`.
 
 ## Local Rules
 
-Rules should live in `.agents/rules`. That directory is not present in this
-checkout yet. When rules are added, keep one pointer here per rule file.
+- `.agents/rules/liveview.md`
+- `.agents/rules/liveview-tests.md`
+- `.agents/rules/ecto-schema.md`
+- `.agents/rules/flop-pagination.md`
+
+## Skill Routing
+
+| Change | Required local skill |
+|---|---|
+| LiveView, LiveComponent, function component, HEEx, or hook | `phoenix-liveview-standards` |
+| LiveView or component tests | `liveview-testing-standards` |
+| Ecto schema, schema changeset, schema helper, or schema unit test | `ecto-schema-standards` |
+| Flop schema, filtered/sorted list, pagination, or sortable table | `flop-pagination-standards` |
+| PRD task execution | `cy-execute-task` (and `cy-workflow-memory` when routed by the workflow) |
+| Final verification | `cy-final-verify` |
+
+The LiveView standards apply to new and materially touched code. Existing
+generated authentication LiveViews/tests and other untouched deviations are
+baseline debt: do not retrofit or flag them unless the current task materially
+changes those lines.
+
+## Local Reviewer
+
+- `.codex/agents/house-search-liveview-reviewer.toml` — read-only, diff-scoped
+  Phoenix/LiveView standards review.
 
 ## Local Skills
 
+- `.agents/skills/phoenix-liveview-standards/SKILL.md`
+- `.agents/skills/liveview-testing-standards/SKILL.md`
+- `.agents/skills/ecto-schema-standards/SKILL.md`
+- `.agents/skills/flop-pagination-standards/SKILL.md`
 - `.agents/skills/compozy/SKILL.md`
 - `.agents/skills/cy-create-prd/SKILL.md`
 - `.agents/skills/cy-create-tasks/SKILL.md`
