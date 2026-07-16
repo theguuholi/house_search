@@ -48,6 +48,20 @@ defmodule HouseSearch.Accounts.Invitation do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
 
+  @derive {
+    Flop.Schema,
+    filterable: [],
+    sortable: [:name, :email, :status, :inserted_at, :id],
+    default_limit: 25,
+    max_limit: 100,
+    pagination_types: [:page],
+    default_pagination_type: :page,
+    default_order: %{
+      order_by: [:inserted_at, :email, :id],
+      order_directions: [:desc, :asc, :asc]
+    }
+  }
+
   schema "invitations" do
     field :token, :string, virtual: true, redact: true
     field :token_hash, :binary, redact: true

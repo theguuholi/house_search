@@ -17,18 +17,28 @@
       </:actions>
     </.simple_form>
 
-    <.simple_form for={@search_form} id="search_form" phx-change="search">
-      <.input field={@search_form[:q]} label="Search" />
+    <.simple_form for={@search_form} id="search_form" phx-submit="search">
+      <.input field={@search_form[:q]} type="search" label="Search" />
+      <:actions>
+        <.button>Search brokers</.button>
+      </:actions>
     </.simple_form>
 
-    <.table id="invitations" rows={@invitations}>
-      <:col :let={invitation} label="Broker">{invitation.name}</:col>
-      <:col :let={invitation} label="Email">{invitation.email}</:col>
-      <:col :let={invitation} label="Status">{invitation.status}</:col>
+    <.table id="invitations" rows={@invitations} meta={@meta} path={@list_path}>
+      <:col :let={invitation} label="Broker" field={:name}>{invitation.name}</:col>
+      <:col :let={invitation} label="Email" field={:email}>{invitation.email}</:col>
+      <:col :let={invitation} label="Status" field={:status}>{invitation.status}</:col>
       <:action :let={invitation}>
         <.button phx-click="revoke" phx-value-id={invitation.id}>Revoke</.button>
       </:action>
     </.table>
+
+    <.pagination
+      :if={@meta && @meta.total_pages > 1}
+      meta={@meta}
+      path={@list_path}
+      label="Broker invitations pages"
+    />
 
     <p :if={@invitations == []} id="invitations-empty" class="text-sm text-zinc-600">
       No broker invitations found.

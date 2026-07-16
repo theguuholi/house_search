@@ -279,28 +279,52 @@ defmodule HouseSearch.Accounts do
     :ok
   end
 
-  def list_brokers(opts \\ []) do
-    page = max(parse_int(Keyword.get(opts, :page, 1)), 1)
-    per_page = min(max(parse_int(Keyword.get(opts, :per_page, 25)), 1), 100)
-    search = Keyword.get(opts, :search, "")
-    offset = (page - 1) * per_page
+  @spec list_brokers(map()) :: {[Invitation.t()], Flop.Meta.t()}
+  def list_brokers(params \\ %{}) when is_map(params) do
+    {q, flop_params} = Map.pop(params, "q", "")
+    flop_opts = [for: Invitation, repo: Repo, replace_invalid_params: true]
 
-    query =
-      from i in Invitation,
-        order_by: [desc: i.inserted_at, asc: i.email],
-        limit: ^per_page,
-        offset: ^offset
+    query = from(invitation in Invitation)
+    query = search_brokers(query, q)
 
-    query =
-      if search && search != "" do
-        term = "%#{search}%"
-        where(query, [i], ilike(i.email, ^term) or ilike(i.name, ^term))
-      else
-        query
-      end
+    {:ok, validated_flop} = Flop.validate(flop_params, flop_opts)
+    stable_flop = stabilize_validated_order(validated_flop)
+    {:ok, result} = Flop.validate_and_run(query, stable_flop, flop_opts)
 
-    Repo.all(query)
+    result
   end
+
+  defp stabilize_validated_order(%Flop{} = flop) do
+    directions = flop.order_directions || []
+
+    order_pairs =
+      flop.order_by
+      |> Enum.with_index()
+      |> Enum.reject(fn {field, _index} -> field == :id end)
+      |> Enum.map(fn {field, index} -> {field, Enum.at(directions, index, :asc)} end)
+      |> Kernel.++([{:id, :asc}])
+
+    {order_by, order_directions} = Enum.unzip(order_pairs)
+    %{flop | order_by: order_by, order_directions: order_directions}
+  end
+
+  defp search_brokers(query, q) when is_binary(q) do
+    case String.trim(q) do
+      "" ->
+        query
+
+      q ->
+        term = "%#{q}%"
+
+        where(
+          query,
+          [invitation],
+          ilike(invitation.email, ^term) or ilike(invitation.name, ^term)
+        )
+    end
+  end
+
+  defp search_brokers(query, _q), do: query
 
   def get_or_create_pilot_settings do
     Repo.get(PilotSettings, @pilot_settings_id) ||
@@ -530,10 +554,6 @@ defmodule HouseSearch.Accounts do
       conflict_target: [:account_id, :user_id]
     )
   end
-
-  defp parse_int(value) when is_integer(value), do: value
-  defp parse_int(value) when is_binary(value), do: String.to_integer(value)
-  defp parse_int(_), do: 1
 
   defp stringify_keys(attrs) do
     Map.new(attrs, fn {key, value} -> {to_string(key), value} end)

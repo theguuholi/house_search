@@ -5,6 +5,20 @@ defmodule HouseSearch.Accounts.InvitationTest do
 
   doctest Invitation
 
+  test "Flop schema exposes only approved broker list behavior" do
+    assert Flop.Schema.filterable(%Invitation{}) == []
+    assert Flop.Schema.sortable(%Invitation{}) == [:name, :email, :status, :inserted_at, :id]
+    assert Flop.Schema.default_limit(%Invitation{}) == 25
+    assert Flop.Schema.max_limit(%Invitation{}) == 100
+    assert Flop.Schema.pagination_types(%Invitation{}) == [:page]
+    assert Flop.Schema.default_pagination_type(%Invitation{}) == :page
+
+    assert Flop.Schema.default_order(%Invitation{}) == %{
+             order_by: [:inserted_at, :email, :id],
+             order_directions: [:desc, :asc, :asc]
+           }
+  end
+
   test "changeset normalizes email and stamps trusted fields" do
     inviter_id = Ecto.UUID.generate()
     expires_at = DateTime.utc_now()
