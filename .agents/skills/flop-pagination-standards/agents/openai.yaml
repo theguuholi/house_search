@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flop Pagination Standards"
+  short_description: "Apply HouseSearch Flop list standards"
+  default_prompt: "Use $flop-pagination-standards to design or change a HouseSearch filtered, sorted, or paginated list."

@@ -7,6 +7,8 @@ description: Use when creating or materially changing HouseSearch Ecto schemas, 
 
 Apply these standards to new and materially touched Ecto schemas. Untouched legacy or generated schemas are baseline debt; do not retrofit unrelated files unless the current task changes them.
 
+When Flop, URL-driven list filtering, sorting, or pagination is involved, [Flop Pagination Standards](../flop-pagination-standards/SKILL.md) and [the Flop pagination rule](../../rules/flop-pagination.md) are also required.
+
 ## Mandatory boundaries
 
 1. Schemas describe data shape, narrow changeset validation, and small schema-local helpers. Context modules own domain workflows and persistence orchestration.

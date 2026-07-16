@@ -2,6 +2,8 @@
 
 Applies to new and materially touched LiveView/component tests. Untouched legacy tests are grandfathered.
 
+When Flop, URL-driven list filtering, sorting, or pagination is involved, [Flop Pagination Standards](../skills/flop-pagination-standards/SKILL.md) and [the Flop pagination rule](flop-pagination.md) are also required.
+
 ## RED gate
 
 - Behavior changes and bug fixes require focused RED evidence before production changes: command, expected assertion failure, and the reason it proves missing/broken behavior.

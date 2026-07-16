@@ -2,6 +2,8 @@
 
 Applies to new and materially touched LiveViews, LiveComponents, function components, HEEx, and hooks. Untouched legacy code is grandfathered.
 
+When Flop, URL-driven list filtering, sorting, or pagination is involved, [Flop Pagination Standards](../skills/flop-pagination-standards/SKILL.md) and [the Flop pagination rule](flop-pagination.md) are also required.
+
 ## Version gate
 
 - Target Phoenix 1.7.24 and LiveView 1.0.18.

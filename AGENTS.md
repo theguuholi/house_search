@@ -26,6 +26,7 @@ setup/build through the aliases in `mix.exs`.
 - `.agents/rules/liveview.md`
 - `.agents/rules/liveview-tests.md`
 - `.agents/rules/ecto-schema.md`
+- `.agents/rules/flop-pagination.md`
 
 ## Skill Routing
 
@@ -34,6 +35,7 @@ setup/build through the aliases in `mix.exs`.
 | LiveView, LiveComponent, function component, HEEx, or hook | `phoenix-liveview-standards` |
 | LiveView or component tests | `liveview-testing-standards` |
 | Ecto schema, schema changeset, schema helper, or schema unit test | `ecto-schema-standards` |
+| Flop schema, filtered/sorted list, pagination, or sortable table | `flop-pagination-standards` |
 | PRD task execution | `cy-execute-task` (and `cy-workflow-memory` when routed by the workflow) |
 | Final verification | `cy-final-verify` |
 
@@ -52,6 +54,7 @@ changes those lines.
 - `.agents/skills/phoenix-liveview-standards/SKILL.md`
 - `.agents/skills/liveview-testing-standards/SKILL.md`
 - `.agents/skills/ecto-schema-standards/SKILL.md`
+- `.agents/skills/flop-pagination-standards/SKILL.md`
 - `.agents/skills/compozy/SKILL.md`
 - `.agents/skills/cy-create-prd/SKILL.md`
 - `.agents/skills/cy-create-tasks/SKILL.md`

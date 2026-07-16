@@ -6,7 +6,7 @@
 
 **Architecture:** `HouseSearch.Accounts.Invitation` defines the only allowed sort and page behavior through `Flop.Schema`; `HouseSearch.Accounts.list_brokers/1` owns friendly search plus validated query execution and returns rows with `Flop.Meta`. The broker LiveView treats URL parameters as state in `handle_params/3`, while `CoreComponents.table/1` and `pagination/1` remain stateless wrappers around Flop Phoenix.
 
-**Tech Stack:** Elixir 1.14, Phoenix 1.7.24, LiveView 1.0.18, Ecto 3.10+, Flop 0.26.4, Flop Phoenix 0.26.1, ExUnit, Floki, Heroicons.
+**Tech Stack:** Elixir 1.14, Phoenix 1.7.24, LiveView 1.0.18, Ecto 3.10+, Flop 0.26.4, Flop Phoenix 0.25.3, ExUnit, Floki, Heroicons.
 
 ## Global Constraints
 
@@ -171,11 +171,11 @@
 
   ```elixir
   {:flop, "~> 0.26.4"},
-  {:flop_phoenix, "~> 0.26.1"},
+  {:flop_phoenix, "~> 0.25.3"},
   ```
 
   Run `mix deps.get` and `mix compile --warnings-as-errors`.
-  Expected: dependencies resolve with Elixir 1.14, Phoenix 1.7, LiveView 1.0, and Ecto 3.10+.
+  Expected: dependencies resolve with Elixir 1.14, Phoenix 1.7, LiveView 1.0, and Ecto 3.10+. Flop Phoenix 0.25.3 is the latest compatible release; 0.26.x requires LiveView 1.1.
 
 - [ ] **Step 2: Write schema-contract and context RED tests**
 

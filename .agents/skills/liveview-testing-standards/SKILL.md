@@ -7,6 +7,8 @@ description: Use when adding or materially changing HouseSearch tests for LiveVi
 
 Apply these standards to new and materially touched tests. Existing tests are baseline debt unless the task changes their behavior.
 
+When Flop, URL-driven list filtering, sorting, or pagination is involved, [Flop Pagination Standards](../flop-pagination-standards/SKILL.md) and [the Flop pagination rule](../../rules/flop-pagination.md) are also required.
+
 ## Non-negotiable workflow
 
 For every behavior change or bug fix:

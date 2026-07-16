@@ -7,6 +7,8 @@ description: Use when creating or materially changing HouseSearch Phoenix LiveVi
 
 Apply these standards to new and materially touched code. Untouched LiveViews, including generated auth code, are baseline debt rather than retrofit targets.
 
+When Flop, URL-driven list filtering, sorting, or pagination is involved, [Flop Pagination Standards](../flop-pagination-standards/SKILL.md) and [the Flop pagination rule](../../rules/flop-pagination.md) are also required.
+
 ## Version contract
 
 Target Phoenix 1.7.24 and LiveView 1.0.18. Do not introduce or recommend LiveView 1.1-only APIs or conventions. Read [version-compatibility.md](references/version-compatibility.md) whenever an API's availability is uncertain.

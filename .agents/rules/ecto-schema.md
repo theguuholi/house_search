@@ -2,6 +2,8 @@
 
 Applies to new and materially touched Ecto schemas, schema changesets, and schema unit tests. Untouched generated or legacy schemas are grandfathered.
 
+When Flop, URL-driven list filtering, sorting, or pagination is involved, [Flop Pagination Standards](../skills/flop-pagination-standards/SKILL.md) and [the Flop pagination rule](flop-pagination.md) are also required.
+
 ## Documentation and type gate
 
 - New schemas must have a module `@moduledoc` that states the table's purpose and points to nearby contexts or related schemas.
